@@ -1,5 +1,13 @@
 import { getGitHubSnapshot, labelsOf, type Issue } from "@/lib/github";
 
+type BoardItem = {
+  title: string;
+  lane: string;
+  owner: string;
+  href?: string;
+  number?: number;
+};
+
 const team = [
   { initials: "MT", name: "Margaret", role: "Team Lead", focus: "Tickets · merge gate · repo coordination" },
   { initials: "ZO", name: "Zoe", role: "Backend Lead", focus: "Python · API · database · contracts" },
@@ -7,7 +15,7 @@ const team = [
   { initials: "LS", name: "Lathithaa", role: "Full-stack + Presenter", focus: "Backend support · demo · pitch · slides" }
 ];
 
-const prepTasks = [
+const prepTasks: BoardItem[] = [
   { title: "Lock challenge + success metric", lane: "todo", owner: "Team" },
   { title: "Write API contract before integration", lane: "todo", owner: "Zoe + Seni" },
   { title: "Frontend builds against mock fixtures", lane: "doing", owner: "Seni" },
@@ -38,7 +46,7 @@ function runClass(status: string, conclusion: string | null) {
 
 export default async function Home() {
   const github = await getGitHubSnapshot();
-  const boardItems = github.issues.length
+  const boardItems: BoardItem[] = github.issues.length
     ? github.issues.map((issue) => ({
         title: issue.title,
         lane: issueLane(issue),
@@ -136,14 +144,13 @@ export default async function Home() {
                   <div className="lane-head"><span>{lane.name}</span><span>{items.length}</span></div>
                   <div className="stack">
                     {items.length ? items.map((item, index) => {
-                      const href = "href" in item ? item.href : undefined;
                       const content = (
                         <>
                           <div className="title">{item.title}</div>
-                          <div className="meta"><span>{item.owner}</span>{"number" in item ? <span>#{item.number}</span> : null}</div>
+                          <div className="meta"><span>{item.owner}</span>{item.number !== undefined ? <span>#{item.number}</span> : null}</div>
                         </>
                       );
-                      return href ? <a className="task" href={href} target="_blank" key={`${item.title}-${index}`}>{content}</a> : <div className="task" key={`${item.title}-${index}`}>{content}</div>;
+                      return item.href ? <a className="task" href={item.href} target="_blank" key={`${item.title}-${index}`}>{content}</a> : <div className="task" key={`${item.title}-${index}`}>{content}</div>;
                     }) : <div className="mini">Nothing here. Keep it that way unless it is real work.</div>}
                   </div>
                 </div>
