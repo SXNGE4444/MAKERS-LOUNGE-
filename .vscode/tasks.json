@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Makers: Dashboard Dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Makers: Quality Gate",
+      "type": "shell",
+      "command": "pnpm makers check",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Makers: GitHub Status",
+      "type": "shell",
+      "command": "pnpm makers status",
+      "problemMatcher": []
+    },
+    {
+      "label": "Makers: Open Xcode",
+      "type": "shell",
+      "command": "pnpm makers ios",
+      "problemMatcher": []
+    },
+    {
+      "label": "Makers: Sync Feature Branch",
+      "type": "shell",
+      "command": "pnpm makers sync",
+      "problemMatcher": []
+    }
+  ]
+}
