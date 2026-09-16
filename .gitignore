@@ -1,0 +1,29 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.DS_Store
+*.log
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Mobile/native build outputs and signing material
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/build/
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+*.pyc
