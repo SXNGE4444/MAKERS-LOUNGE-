@@ -1,0 +1,334 @@
+openapi: 3.1.0
+info:
+  title: Travel Safe South Africa Safety Intelligence API
+  version: 0.1.0
+  description: >
+    Contract-first API for crime/safety map layers, official aggregate statistics,
+    provenance and confidence-aware area safety scores. A safety score is a comparative
+    planning signal, not a guarantee that a person will or will not experience crime.
+servers:
+  - url: http://127.0.0.1:8090
+    description: Local PocketBase
+tags:
+  - name: System
+  - name: Map
+  - name: Safety
+  - name: Statistics
+  - name: Sources
+
+paths:
+  /api/travel-safe/v1/health:
+    get:
+      tags: [System]
+      summary: Health check
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service, version]
+                properties:
+                  status: { type: string, const: ok }
+                  service: { type: string, const: travel-safe-safety-api }
+                  version: { type: string, example: 0.1.0 }
+
+  /api/travel-safe/v1/incidents:
+    get:
+      tags: [Map]
+      summary: Public incident points in a bounding box
+      description: >
+        Returns privacy-reduced public coordinates. Raw event coordinates remain admin-only.
+        Synthetic records are excluded unless explicitly enabled.
+      parameters:
+        - $ref: "#/components/parameters/Bbox"
+        - $ref: "#/components/parameters/Hours"
+        - name: includeUnverified
+          in: query
+          schema: { type: boolean, default: false }
+        - name: includeSynthetic
+          in: query
+          schema: { type: boolean, default: false }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500, default: 250 }
+      responses:
+        "200":
+          description: Incident point feed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, meta]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/PublicIncident" }
+                  meta: { $ref: "#/components/schemas/QueryMeta" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/travel-safe/v1/heatmap:
+    get:
+      tags: [Map]
+      summary: Aggregated viewport heat-map cells
+      description: >
+        Aggregates recent incidents into zoom-aware grid cells. relativeIntensity is normalized
+        inside the requested viewport and must not be interpreted as a national absolute risk value.
+      parameters:
+        - $ref: "#/components/parameters/Bbox"
+        - $ref: "#/components/parameters/Hours"
+        - name: zoom
+          in: query
+          schema: { type: integer, minimum: 5, maximum: 18, default: 11 }
+        - name: includeUnverified
+          in: query
+          schema: { type: boolean, default: false }
+        - name: includeSynthetic
+          in: query
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Heat-map feed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cells, meta]
+                properties:
+                  cells:
+                    type: array
+                    items: { $ref: "#/components/schemas/HeatCell" }
+                  meta:
+                    allOf:
+                      - $ref: "#/components/schemas/QueryMeta"
+                      - type: object
+                        properties:
+                          relativeScale: { type: boolean, const: true }
+                          gridDegrees: { type: number, example: 0.005 }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/travel-safe/v1/areas/{areaCode}/safety:
+    get:
+      tags: [Safety]
+      summary: Latest confidence-aware safety score for an area
+      parameters:
+        - name: areaCode
+          in: path
+          required: true
+          schema: { type: string }
+        - name: windowDays
+          in: query
+          schema: { type: integer, minimum: 7, maximum: 365, default: 90 }
+      responses:
+        "200":
+          description: Safety score or explicit insufficient-data result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SafetyRating"
+
+  /api/travel-safe/v1/stats:
+    get:
+      tags: [Statistics]
+      summary: Crime statistics for an area
+      parameters:
+        - name: areaCode
+          in: query
+          required: true
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Aggregate statistics with provenance
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, meta]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/CrimeStat" }
+                  meta: { $ref: "#/components/schemas/QueryMeta" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/travel-safe/v1/sources:
+    get:
+      tags: [Sources]
+      summary: Active data sources and provenance metadata
+      responses:
+        "200":
+          description: Source catalogue
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/DataSource" }
+
+components:
+  parameters:
+    Bbox:
+      name: bbox
+      in: query
+      required: true
+      description: west,south,east,north in WGS84 decimal degrees
+      schema:
+        type: string
+        example: "18.35,-34.05,18.65,-33.80"
+    Hours:
+      name: hours
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 8760
+        default: 720
+
+  responses:
+    BadRequest:
+      description: Invalid query
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+
+  schemas:
+    QueryMeta:
+      type: object
+      required: [generatedAt]
+      properties:
+        generatedAt: { type: string, format: date-time }
+        count: { type: integer }
+        windowHours: { type: integer }
+        bbox:
+          type: array
+          prefixItems:
+            - { type: number }
+            - { type: number }
+            - { type: number }
+            - { type: number }
+          minItems: 4
+          maxItems: 4
+
+    PublicIncident:
+      type: object
+      required: [id, occurredAt, lat, lng, category, severity, confidence, sourceType, locationPrecisionM]
+      properties:
+        id: { type: string }
+        occurredAt: { type: string, format: date-time }
+        lat: { type: number }
+        lng: { type: number }
+        areaCode: { type: string }
+        category: { type: string }
+        severity: { type: number, minimum: 1, maximum: 5 }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        sourceType:
+          type: string
+          enum: [official, partner, community, synthetic]
+        title: { type: string }
+        locationPrecisionM: { type: integer, example: 120 }
+
+    HeatCell:
+      type: object
+      required: [lat, lng, count, weightedRisk, relativeIntensity, confidence, sourceMix]
+      properties:
+        lat: { type: number }
+        lng: { type: number }
+        count: { type: integer }
+        weightedRisk: { type: number }
+        relativeIntensity:
+          type: number
+          minimum: 0
+          maximum: 1
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        sourceMix:
+          type: object
+          additionalProperties: { type: integer }
+
+    SafetyRating:
+      type: object
+      required: [areaCode, windowDays, status, disclaimer]
+      properties:
+        areaCode: { type: string }
+        areaName: { type: string }
+        province: { type: string }
+        windowDays: { type: integer }
+        status:
+          type: string
+          enum: [ready, insufficient_data]
+        score:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 100
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        calculatedAt:
+          type: [string, "null"]
+          format: date-time
+        modelVersion: { type: [string, "null"] }
+        components:
+          type: object
+          properties:
+            officialRiskPercentile: { type: [number, "null"] }
+            incidentRiskPercentile: { type: [number, "null"] }
+            trendIndex: { type: [number, "null"] }
+        sourceMix:
+          type: object
+          additionalProperties: true
+        explanation:
+          type: object
+          additionalProperties: true
+        disclaimer: { type: string }
+
+    CrimeStat:
+      type: object
+      required: [sourceCode, areaCode, periodStart, periodEnd, category, count, official]
+      properties:
+        sourceCode: { type: string }
+        areaCode: { type: string }
+        periodStart: { type: string, format: date-time }
+        periodEnd: { type: string, format: date-time }
+        category: { type: string }
+        count: { type: number }
+        ratePer100k: { type: number }
+        populationDenominator: { type: number }
+        peerPercentile: { type: number, minimum: 0, maximum: 1 }
+        official: { type: boolean }
+        sourceUrl: { type: string, format: uri }
+
+    DataSource:
+      type: object
+      required: [code, name, sourceType, reliabilityWeight, active]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        sourceType:
+          type: string
+          enum: [official, partner, community, synthetic]
+        authority: { type: string }
+        url: { type: string, format: uri }
+        license: { type: string }
+        refreshCadence: { type: string }
+        lastFetchedAt: { type: [string, "null"], format: date-time }
+        reliabilityWeight: { type: number, minimum: 0, maximum: 1 }
+        active: { type: boolean }
