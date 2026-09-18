@@ -35,3 +35,36 @@ jobs:
 
       - name: Production build
         run: pnpm build
+
+  safety-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build PocketBase API image
+        run: docker build -t travel-safe-safety-api ./services/safety-api
+
+      - name: Start PocketBase API
+        run: docker run -d --name travel-safe-safety-api -p 8090:8090 travel-safe-safety-api
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8090/api/travel-safe/v1/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs travel-safe-safety-api
+          exit 1
+
+      - name: Smoke test heat-map contract
+        run: |
+          curl -fsS "http://127.0.0.1:8090/api/travel-safe/v1/heatmap?bbox=18.35,-34.05,18.65,-33.80&zoom=12&hours=720" \
+            | grep '"cells"'
+
+      - name: Show API logs on failure
+        if: failure()
+        run: docker logs travel-safe-safety-api
