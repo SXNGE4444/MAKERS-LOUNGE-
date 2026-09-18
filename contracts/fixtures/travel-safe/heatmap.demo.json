@@ -1,0 +1,32 @@
+{
+  "cells": [
+    {
+      "lat": -33.9225,
+      "lng": 18.4225,
+      "count": 4,
+      "weightedRisk": 1.82,
+      "relativeIntensity": 1,
+      "confidence": 0.78,
+      "sourceMix": { "official": 3, "community": 1 }
+    },
+    {
+      "lat": -33.9175,
+      "lng": 18.4275,
+      "count": 2,
+      "weightedRisk": 0.91,
+      "relativeIntensity": 0.5,
+      "confidence": 0.72,
+      "sourceMix": { "official": 2 }
+    }
+  ],
+  "meta": {
+    "synthetic": true,
+    "fixturePurpose": "frontend-contract-testing-only",
+    "warning": "These values are fabricated test data and must never be presented as real South African crime statistics.",
+    "generatedAt": "2026-09-18T00:00:00.000Z",
+    "bbox": [18.35, -34.05, 18.65, -33.8],
+    "windowHours": 720,
+    "gridDegrees": 0.005,
+    "relativeScale": true
+  }
+}
