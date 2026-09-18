@@ -3,10 +3,10 @@
 This repository is the coordination and delivery system for **The Makers** hackathon team.
 
 ## Team ownership
-- **Margaret — Team Lead:** issue/ticket ownership, scope arbitration, repository coordination, final merge gate.
-- **Zoe — Backend Lead:** Python/API/database architecture, backend tests, API contract ownership.
-- **Seni — Frontend Lead:** React/React Native UI, client state, mock integration, frontend tests.
-- **Lathithaa — Full-stack + Presenter:** backend collaboration, integration support, demo path, pitch/slides and submission evidence.
+- **Margaret — Team Lead + Frontend:** repository ownership, scope/merge coordination and frontend delivery.
+- **Lathithaa — Backend Lead:** FastAPI architecture, backend contract, data and integration ownership.
+- **Zoe — Backend + Pitch:** backend feature delivery, API endpoints and pitch leadership.
+- **Sibongiseni — Frontend Lead:** Expo/React Native UI, client state, API integration and frontend tests.
 
 ## Non-negotiable workflow
 1. Do not code directly on `main`.

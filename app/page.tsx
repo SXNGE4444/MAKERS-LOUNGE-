@@ -9,10 +9,10 @@ type BoardItem = {
 };
 
 const team = [
-  { initials: "MT", name: "Margaret", role: "Team Lead", focus: "Tickets · merge gate · repo coordination" },
-  { initials: "ZO", name: "Zoe", role: "Backend Lead", focus: "Python · API · database · contracts" },
-  { initials: "SE", name: "Seni", role: "Frontend Lead", focus: "React / React Native · integration · UX" },
-  { initials: "LS", name: "Lathithaa", role: "Full-stack + Presenter", focus: "Backend support · demo · pitch · slides" }
+  { initials: "MT", name: "Margaret", role: "Team Lead + Frontend", focus: "Repo ownership · frontend delivery · merge coordination" },
+  { initials: "LS", name: "Lathithaa", role: "Backend Lead", focus: "FastAPI · data contracts · backend integration" },
+  { initials: "ZO", name: "Zoe", role: "Backend + Pitch", focus: "Backend features · API endpoints · pitch lead" },
+  { initials: "SI", name: "Sibongiseni", role: "Frontend Lead", focus: "Expo / React Native · screens · client integration" }
 ];
 
 const prepTasks: BoardItem[] = [
@@ -57,6 +57,7 @@ export default async function Home() {
     : prepTasks;
 
   const repoUrl = `https://github.com/${github.repo}`;
+  const travelSafeRepoUrl = "https://github.com/MargaretThomas/travel-safe";
   const healthyRuns = github.runs.filter((run) => run.conclusion === "success").length;
 
   return (
@@ -94,6 +95,27 @@ export default async function Home() {
           <div className="label">Build signal</div>
           <div className="metric">{github.runs.length ? `${healthyRuns}/${github.runs.length}` : "—"}</div>
           <p className="mini">Recent GitHub Actions runs passing. No green build means no merge.</p>
+        </article>
+
+        <article className="card full">
+          <div className="row">
+            <div>
+              <div className="eyebrow">Active product / Travel Safe</div>
+              <h2 style={{ marginTop: 7 }}>South Africa safety intelligence backend</h2>
+            </div>
+            <span className="pill signal">FastAPI · Expo · SAPS data</span>
+          </div>
+          <p className="sub">
+            Source of truth: MargaretThomas/travel-safe. Backend work follows the existing Python 3.12
+            + FastAPI scaffold and frontend work follows Expo / React Native. Safety data work should
+            extend the documented backend contract first, then expose verified SAPS-derived statistics
+            and provider-specific provenance without bypassing team ownership.
+          </p>
+          <div className="actions">
+            <a className="btn primary" href={travelSafeRepoUrl} target="_blank">Open Travel Safe repo</a>
+            <a className="btn" href={`${travelSafeRepoUrl}/blob/main/backend/docs/architecture.md`} target="_blank">Backend contract</a>
+            <a className="btn" href={`${repoUrl}/issues/1`} target="_blank">Integration research</a>
+          </div>
         </article>
 
         <article className="card half">

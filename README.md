@@ -2,7 +2,7 @@
 
 **Hackathon control room for The Makers.**
 
-Makers Lounge is not the hackathon product itself. It is the shared operating system that keeps the team coordinated while the product is being built: roles, work queue, GitHub PRs, CI health, frontend/backend handoffs, editor workflows, demo readiness and project-specific AI/human skills.
+Makers Lounge is not the hackathon product itself. The active product repository is `MargaretThomas/travel-safe`. It is the shared operating system that keeps the team coordinated while the product is being built: roles, work queue, GitHub PRs, CI health, frontend/backend handoffs, editor workflows, demo readiness and project-specific AI/human skills.
 
 ## Design direction
 
@@ -14,10 +14,10 @@ Why: this is a developer control room, so density and state visibility matter mo
 
 | Person | Primary role | Default ownership |
 | --- | --- | --- |
-| Margaret | Team Lead | Tasks, scope, repo coordination, final merge gate |
-| Zoe | Backend Lead | Python/API/database, backend tests, API contract |
-| Seni | Frontend Lead | React/React Native, client integration, UI verification |
-| Lathithaa | Full-stack + Presenter | Backend support, integration, demo, pitch/slides |
+| Margaret | Team Lead + Frontend | Repo ownership, frontend delivery, scope/merge coordination |
+| Lathithaa | Backend Lead | FastAPI, backend architecture, data/API integration |
+| Zoe | Backend + Pitch | Backend features, API endpoints, pitch lead |
+| Sibongiseni | Frontend Lead | Expo/React Native, client integration, UI verification |
 
 ## Core workflow
 
